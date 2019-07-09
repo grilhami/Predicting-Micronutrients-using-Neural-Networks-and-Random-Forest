@@ -30,10 +30,6 @@ def read_and_clean_data(filepath):
     drop_cols = ['NDB_No', 'Shrt_Desc']
     dataset = dataset.drop(drop_cols, axis=1)
 
-    # Getting the labels
-    labels = ['Calcium_(mg)', 'Iron_(mg)','Zinc_(mg)', 
-    'Vit_A_IU', 'Vit_D_IU', 'Folate_Tot_(µg)']
-
     # Remove text in GmWt_Desc2 and GmWt_Desc1
     dataset[cat_cols[0]] = dataset[cat_cols[0]].apply(clean_text)
     dataset[cat_cols[1]] = dataset[cat_cols[1]].apply(clean_text)
@@ -41,6 +37,14 @@ def read_and_clean_data(filepath):
     # Fill missing data with median
     get_median = dataset.median()
     dataset = dataset.fillna(get_median)
+
+    return dataset
+
+def split_X_y(dataset):
+
+    # Getting the labels
+    labels = ['Calcium_(mg)', 'Iron_(mg)','Zinc_(mg)', 
+    'Vit_A_IU', 'Vit_D_IU', 'Folate_Tot_(µg)']
 
     # List of names of the columns that we will drop for the input data
     drop_cols = ['Vit_D_µg', 'Vit_A_RAE'] + labels
