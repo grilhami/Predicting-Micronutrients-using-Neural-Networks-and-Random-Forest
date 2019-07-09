@@ -31,8 +31,12 @@ def read_and_clean_data(filepath):
     dataset = dataset.drop(drop_cols, axis=1)
 
     # Remove text in GmWt_Desc2 and GmWt_Desc1
-    dataset[cat_cols[0]] = dataset[cat_cols[0]].apply(clean_text)
-    dataset[cat_cols[1]] = dataset[cat_cols[1]].apply(clean_text)
+    try:
+        dataset[cat_cols[0]] = dataset[cat_cols[0]].apply(clean_text)
+        dataset[cat_cols[1]] = dataset[cat_cols[1]].apply(clean_text)
+    except:
+        dataset[cat_cols[1]] = dataset[cat_cols[1]].apply(clean_text)
+        dataset[cat_cols[2]] = dataset[cat_cols[2]].apply(clean_text)
 
     # Fill missing data with median
     get_median = dataset.median()
