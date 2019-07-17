@@ -1,0 +1,107 @@
+{
+    "graph": {
+        "_type": "graph",
+        "format": "keras",
+        "nodes": [
+            {
+                "name": "dense",
+                "id": "dense",
+                "class_name": "Dense",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 5632
+            },
+            {
+                "name": "activation",
+                "id": "activation",
+                "class_name": "Activation",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 0
+            },
+            {
+                "name": "dropout",
+                "id": "dropout",
+                "class_name": "Dropout",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 0
+            },
+            {
+                "name": "dense_1",
+                "id": "dense_1",
+                "class_name": "Dense",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 8256
+            },
+            {
+                "name": "activation_1",
+                "id": "activation_1",
+                "class_name": "Activation",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 0
+            },
+            {
+                "name": "dropout_1",
+                "id": "dropout_1",
+                "class_name": "Dropout",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 0
+            },
+            {
+                "name": "dense_2",
+                "id": "dense_2",
+                "class_name": "Dense",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 2080
+            },
+            {
+                "name": "activation_2",
+                "id": "activation_2",
+                "class_name": "Activation",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 0
+            },
+            {
+                "name": "dropout_2",
+                "id": "dropout_2",
+                "class_name": "Dropout",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 0
+            },
+            {
+                "name": "dense_3",
+                "id": "dense_3",
+                "class_name": "Dense",
+                "output_shape": [
+                    "multiple"
+                ],
+                "num_parameters": 198
+            }
+        ],
+        "edges": []
+    },
+    "val_acc": 0.29340410232543945,
+    "loss": 2767.386420824748,
+    "val_loss": 872.5220215213941,
+    "acc": 0.303975373506546,
+    "_step": 728,
+    "epoch": 728,
+    "_timestamp": 1563391205.1090724,
+    "_runtime": 517.2498681545258
+}

@@ -1,0 +1,473 @@
+diff --git a/notebooks/Part_3.ipynb b/notebooks/Part_3.ipynb
+index 03b7fa5..3429bde 100644
+--- a/notebooks/Part_3.ipynb
++++ b/notebooks/Part_3.ipynb
+@@ -2,7 +2,7 @@
+  "cells": [
+   {
+    "cell_type": "code",
+-   "execution_count": 2,
++   "execution_count": 1,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -22,7 +22,7 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 5,
++   "execution_count": 2,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -42,7 +42,7 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 6,
++   "execution_count": 3,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -53,7 +53,7 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 7,
++   "execution_count": 4,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -69,6 +69,432 @@
+     "input_y_test = scl_y.transform(y_test)"
+    ]
+   },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "# Import Dependencies For Training In Keras"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": 9,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "from keras.models import Sequential\n",
++    "from keras.layers import Activation, Dense, BatchNormalization\n",
++    "from keras.optimizers import Adam\n",
++    "from keras.losses import mean_squared_error"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "# Set Up Wandb To Monitor Training"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": 6,
++   "metadata": {},
++   "outputs": [
++    {
++     "data": {
++      "text/html": [
++       "\n",
++       "        Notebook configured with <a href=\"https://wandb.com\" target=\"_blank\">W&B</a>. You can <a href=\"https://app.wandb.ai/gilangrilhami/Predicting-Micronutrients-using-Neural-Networks-and-Random-Forest-notebooks/runs/t7xswzx3\" target=\"_blank\">open</a> the run page, or call <code>%%wandb</code>\n",
++       "        in a cell containing your training loop to display live results.  Learn more in our <a href=\"https://docs.wandb.com/docs/integrations/jupyter.html\" target=\"_blank\">docs</a>.\n",
++       "    "
++      ],
++      "text/plain": [
++       "<IPython.core.display.HTML object>"
++      ]
++     },
++     "metadata": {},
++     "output_type": "display_data"
++    }
++   ],
++   "source": [
++    "import wandb\n",
++    "from wandb.keras import WandbCallback\n",
++    "\n",
++    "wandb.init()\n",
++    "config = wandb.config"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": 15,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Set up paramaters for training\n",
++    "\n",
++    "config.batch_size = 128\n",
++    "config.epochs = 1000\n",
++    "config.learning_rate = 0.001\n",
++    "config.dropout = 0.8"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "# Building the model"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": 8,
++   "metadata": {},
++   "outputs": [
++    {
++     "name": "stderr",
++     "output_type": "stream",
++     "text": [
++      "WARNING: Logging before flag parsing goes to stderr.\n",
++      "W0718 01:00:39.028670 139955335399232 deprecation_wrapper.py:119] From /mnt/c/Users/Gilang R Ilhami/Desktop/personal_projects/blogpost/blogpost_env/lib/python3.6/site-packages/keras/backend/tensorflow_backend.py:74: The name tf.get_default_graph is deprecated. Please use tf.compat.v1.get_default_graph instead.\n",
++      "\n"
++     ]
++    }
++   ],
++   "source": [
++    "model = Sequential()\n",
++    "model.add(Dense(input_x_train.shape[1]))\n",
++    "model.add(Dense(1024))\n",
++    "model.add(Activation('relu'))\n",
++    "model.add(Dense(512))\n",
++    "model.add(Activation('relu'))\n",
++    "model.add(Dense(128))\n",
++    "model.add(Activation('relu'))\n",
++    "model.add(Dense(64))\n",
++    "model.add(Activation('relu'))\n",
++    "model.add(Dense(32))\n",
++    "model.add(Activation('relu'))\n",
++    "model.add(Dense(6))"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "# Training the Model"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": 10,
++   "metadata": {},
++   "outputs": [
++    {
++     "name": "stderr",
++     "output_type": "stream",
++     "text": [
++      "W0718 01:10:41.958834 139955335399232 deprecation_wrapper.py:119] From /mnt/c/Users/Gilang R Ilhami/Desktop/personal_projects/blogpost/blogpost_env/lib/python3.6/site-packages/keras/optimizers.py:790: The name tf.train.Optimizer is deprecated. Please use tf.compat.v1.train.Optimizer instead.\n",
++      "\n"
++     ]
++    }
++   ],
++   "source": [
++    "# Set the optimization method and cirterion\n",
++    "\n",
++    "adam = Adam(lr=config.learning_rate)\n",
++    "model.compile(loss=mean_squared_error, optimizer=adam, metrics=['accuracy'])"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": 14,
++   "metadata": {
++    "scrolled": true
++   },
++   "outputs": [
++    {
++     "name": "stdout",
++     "output_type": "stream",
++     "text": [
++      "Train on 7471 samples, validate on 1319 samples\n",
++      "Epoch 1/1000\n",
++      "7471/7471 [==============================] - 4s 493us/step - loss: 721029286.8581 - acc: 0.2990 - val_loss: 12116.7098 - val_acc: 0.2638\n",
++      "Epoch 2/1000\n",
++      "7471/7471 [==============================] - 3s 362us/step - loss: 587066056.5221 - acc: 0.3111 - val_loss: 36607.6119 - val_acc: 0.3093\n",
++      "Epoch 3/1000\n",
++      "7471/7471 [==============================] - 3s 357us/step - loss: 675943137.4078 - acc: 0.3144 - val_loss: 11750.7857 - val_acc: 0.3017\n",
++      "Epoch 4/1000\n",
++      "7471/7471 [==============================] - 3s 369us/step - loss: 4745869323.0764 - acc: 0.2763 - val_loss: 16118.0550 - val_acc: 0.3381\n",
++      "Epoch 5/1000\n",
++      "7471/7471 [==============================] - 3s 356us/step - loss: 697630975.4697 - acc: 0.3001 - val_loss: 5415.7553 - val_acc: 0.2957\n",
++      "Epoch 6/1000\n",
++      "7471/7471 [==============================] - 3s 376us/step - loss: 1657374859.9664 - acc: 0.3154 - val_loss: 976.0249 - val_acc: 0.2858\n",
++      "Epoch 7/1000\n",
++      "7471/7471 [==============================] - 3s 375us/step - loss: 7122411435.4241 - acc: 0.2946 - val_loss: 27117.9708 - val_acc: 0.3131\n",
++      "Epoch 8/1000\n",
++      "7471/7471 [==============================] - 3s 411us/step - loss: 2622099726.8508 - acc: 0.2756 - val_loss: 919.2532 - val_acc: 0.2851\n",
++      "Epoch 9/1000\n",
++      "7471/7471 [==============================] - 3s 380us/step - loss: 2820.1763 - acc: 0.2959 - val_loss: 4285.7934 - val_acc: 0.2396\n",
++      "Epoch 10/1000\n",
++      "7471/7471 [==============================] - 3s 385us/step - loss: 3005.7701 - acc: 0.2661 - val_loss: 1437.7857 - val_acc: 0.2752\n",
++      "Epoch 11/1000\n",
++      "7471/7471 [==============================] - 3s 359us/step - loss: 3012.5739 - acc: 0.2716 - val_loss: 1005.7719 - val_acc: 0.2790\n",
++      "Epoch 12/1000\n",
++      "7471/7471 [==============================] - 3s 362us/step - loss: 2697.1919 - acc: 0.2692 - val_loss: 897.1113 - val_acc: 0.2654\n",
++      "Epoch 13/1000\n",
++      "7471/7471 [==============================] - 3s 366us/step - loss: 2935.9299 - acc: 0.2542 - val_loss: 919.2662 - val_acc: 0.2509\n",
++      "Epoch 14/1000\n",
++      "7471/7471 [==============================] - 3s 360us/step - loss: 2767.1704 - acc: 0.2432 - val_loss: 2233.8951 - val_acc: 0.2320\n",
++      "Epoch 15/1000\n",
++      "7471/7471 [==============================] - 3s 374us/step - loss: 2616.8669 - acc: 0.2399 - val_loss: 25855.4473 - val_acc: 0.2388\n",
++      "Epoch 16/1000\n",
++      "7471/7471 [==============================] - 3s 360us/step - loss: 3447.5359 - acc: 0.2192 - val_loss: 1592.6144 - val_acc: 0.2464\n",
++      "Epoch 17/1000\n",
++      "7471/7471 [==============================] - 3s 364us/step - loss: 2566.6209 - acc: 0.2496 - val_loss: 1233.7655 - val_acc: 0.2502\n",
++      "Epoch 18/1000\n",
++      "7471/7471 [==============================] - 3s 352us/step - loss: 2520.8788 - acc: 0.2757 - val_loss: 2334.8873 - val_acc: 0.2555\n",
++      "Epoch 19/1000\n",
++      "7471/7471 [==============================] - 3s 362us/step - loss: 2590.5849 - acc: 0.2925 - val_loss: 2508.0860 - val_acc: 0.3025\n",
++      "Epoch 20/1000\n",
++      "7471/7471 [==============================] - 3s 353us/step - loss: 2505.2163 - acc: 0.2891 - val_loss: 1447.1241 - val_acc: 0.2722\n",
++      "Epoch 21/1000\n",
++      "7471/7471 [==============================] - 3s 357us/step - loss: 2578.2414 - acc: 0.2879 - val_loss: 939.8506 - val_acc: 0.2661\n",
++      "Epoch 22/1000\n",
++      "7471/7471 [==============================] - 3s 363us/step - loss: 2698.5663 - acc: 0.2862 - val_loss: 1480.4224 - val_acc: 0.3071\n",
++      "Epoch 23/1000\n",
++      "7471/7471 [==============================] - 3s 353us/step - loss: 2444.2178 - acc: 0.2855 - val_loss: 1031.0043 - val_acc: 0.2873\n",
++      "Epoch 24/1000\n",
++      "7471/7471 [==============================] - 3s 355us/step - loss: 2494.5827 - acc: 0.2617 - val_loss: 1223.2861 - val_acc: 0.2889\n",
++      "Epoch 25/1000\n",
++      "7471/7471 [==============================] - 3s 357us/step - loss: 2388.5115 - acc: 0.2982 - val_loss: 1657.9785 - val_acc: 0.2881\n",
++      "Epoch 26/1000\n",
++      "7471/7471 [==============================] - 3s 367us/step - loss: 2401.5674 - acc: 0.2854 - val_loss: 1637.7336 - val_acc: 0.2873\n",
++      "Epoch 27/1000\n",
++      "7471/7471 [==============================] - 3s 357us/step - loss: 2391.6763 - acc: 0.2728 - val_loss: 1913.8989 - val_acc: 0.2767\n",
++      "Epoch 28/1000\n",
++      "7471/7471 [==============================] - 3s 355us/step - loss: 3057.5494 - acc: 0.2453 - val_loss: 2272.3382 - val_acc: 0.2540\n",
++      "Epoch 29/1000\n",
++      "7471/7471 [==============================] - 3s 352us/step - loss: 2340.9378 - acc: 0.2456 - val_loss: 2357.8087 - val_acc: 0.2358\n",
++      "Epoch 30/1000\n",
++      "7471/7471 [==============================] - 3s 365us/step - loss: 2127.1825 - acc: 0.2549 - val_loss: 1655.8704 - val_acc: 0.2547\n",
++      "Epoch 31/1000\n",
++      "7471/7471 [==============================] - 3s 400us/step - loss: 2352.1058 - acc: 0.2368 - val_loss: 2118.0015 - val_acc: 0.2509\n",
++      "Epoch 32/1000\n",
++      "7471/7471 [==============================] - 3s 376us/step - loss: 2101.3545 - acc: 0.2420 - val_loss: 1319.0636 - val_acc: 0.2479\n",
++      "Epoch 33/1000\n",
++      "7471/7471 [==============================] - 3s 371us/step - loss: 2272.0377 - acc: 0.2448 - val_loss: 1397.7862 - val_acc: 0.2563\n",
++      "Epoch 34/1000\n",
++      "7471/7471 [==============================] - 3s 370us/step - loss: 2362.4557 - acc: 0.2684 - val_loss: 2897.0703 - val_acc: 0.2851\n",
++      "Epoch 35/1000\n",
++      "7471/7471 [==============================] - 3s 375us/step - loss: 1714.3265 - acc: 0.2425 - val_loss: 963.5730 - val_acc: 0.2259\n",
++      "Epoch 36/1000\n",
++      "7471/7471 [==============================] - 3s 387us/step - loss: 2285.1328 - acc: 0.2400 - val_loss: 8798.0141 - val_acc: 0.2873\n",
++      "Epoch 37/1000\n",
++      "7471/7471 [==============================] - 3s 370us/step - loss: 1548.0657 - acc: 0.2678 - val_loss: 3121.1961 - val_acc: 0.2487\n",
++      "Epoch 38/1000\n",
++      "7471/7471 [==============================] - 3s 368us/step - loss: 1714.5604 - acc: 0.2483 - val_loss: 2101.5799 - val_acc: 0.2805\n",
++      "Epoch 39/1000\n",
++      "7471/7471 [==============================] - 3s 368us/step - loss: 1271.7042 - acc: 0.2523 - val_loss: 4300.3308 - val_acc: 0.2631\n",
++      "Epoch 40/1000\n",
++      "7471/7471 [==============================] - 3s 372us/step - loss: 1290.1346 - acc: 0.2444 - val_loss: 26542.6381 - val_acc: 0.2699\n",
++      "Epoch 41/1000\n",
++      "7471/7471 [==============================] - 3s 376us/step - loss: 802.4827 - acc: 0.2491 - val_loss: 2251.9850 - val_acc: 0.2540\n",
++      "Epoch 42/1000\n",
++      "7471/7471 [==============================] - 3s 376us/step - loss: 666.9677 - acc: 0.2403 - val_loss: 1187.8370 - val_acc: 0.2487\n",
++      "Epoch 43/1000\n",
++      "7471/7471 [==============================] - 3s 359us/step - loss: 885.4005 - acc: 0.2440 - val_loss: 5893.5041 - val_acc: 0.2585\n",
++      "Epoch 44/1000\n",
++      "7471/7471 [==============================] - 3s 384us/step - loss: 690.2242 - acc: 0.2269 - val_loss: 856.0171 - val_acc: 0.2199\n",
++      "Epoch 45/1000\n",
++      "7471/7471 [==============================] - 3s 388us/step - loss: 2654.9985 - acc: 0.2175 - val_loss: 827.6751 - val_acc: 0.2183\n",
++      "Epoch 46/1000\n",
++      "7471/7471 [==============================] - 3s 389us/step - loss: 3363.9802 - acc: 0.2231 - val_loss: 772.2465 - val_acc: 0.2449\n",
++      "Epoch 47/1000\n",
++      "7471/7471 [==============================] - 3s 364us/step - loss: 2515.7491 - acc: 0.2453 - val_loss: 1452.1735 - val_acc: 0.2578\n",
++      "Epoch 48/1000\n",
++      "7471/7471 [==============================] - 3s 370us/step - loss: 997.2131 - acc: 0.2419 - val_loss: 1451.2876 - val_acc: 0.2570\n",
++      "Epoch 49/1000\n",
++      "7471/7471 [==============================] - 3s 399us/step - loss: 8216.3612 - acc: 0.2148 - val_loss: 972.4339 - val_acc: 0.2115\n",
++      "Epoch 50/1000\n",
++      "7471/7471 [==============================] - 3s 364us/step - loss: 2409.1956 - acc: 0.2710 - val_loss: 1654.1290 - val_acc: 0.2964\n",
++      "Epoch 51/1000\n",
++      "7471/7471 [==============================] - 3s 351us/step - loss: 1541.1057 - acc: 0.3075 - val_loss: 1764.6281 - val_acc: 0.2972\n",
++      "Epoch 52/1000\n",
++      "7471/7471 [==============================] - 3s 358us/step - loss: 926.1957 - acc: 0.3088 - val_loss: 2504.2065 - val_acc: 0.2934\n",
++      "Epoch 53/1000\n",
++      "7471/7471 [==============================] - 3s 366us/step - loss: 850.7530 - acc: 0.3077 - val_loss: 1937.6201 - val_acc: 0.2919\n",
++      "Epoch 54/1000\n",
++      "7471/7471 [==============================] - 3s 403us/step - loss: 595.0915 - acc: 0.3067 - val_loss: 4902.2878 - val_acc: 0.2964\n",
++      "Epoch 55/1000\n",
++      "7471/7471 [==============================] - 3s 371us/step - loss: 571.5943 - acc: 0.3073 - val_loss: 1942.2470 - val_acc: 0.2964\n",
++      "Epoch 56/1000\n",
++      "7471/7471 [==============================] - 3s 343us/step - loss: 533.3789 - acc: 0.3063 - val_loss: 2063.3501 - val_acc: 0.2942\n",
++      "Epoch 57/1000\n"
++     ]
++    },
++    {
++     "name": "stdout",
++     "output_type": "stream",
++     "text": [
++      "7471/7471 [==============================] - 3s 353us/step - loss: 518.8648 - acc: 0.3069 - val_loss: 1631.7768 - val_acc: 0.2949\n",
++      "Epoch 58/1000\n",
++      "7471/7471 [==============================] - 3s 343us/step - loss: 542.3712 - acc: 0.3079 - val_loss: 5883.0165 - val_acc: 0.2942\n",
++      "Epoch 59/1000\n",
++      "7471/7471 [==============================] - 3s 364us/step - loss: 692.9649 - acc: 0.3065 - val_loss: 856.3531 - val_acc: 0.2934\n",
++      "Epoch 60/1000\n",
++      "7471/7471 [==============================] - 3s 350us/step - loss: 1187.6333 - acc: 0.3071 - val_loss: 3491.4637 - val_acc: 0.2949\n",
++      "Epoch 61/1000\n",
++      "7471/7471 [==============================] - 3s 340us/step - loss: 520.0392 - acc: 0.3064 - val_loss: 1751.1179 - val_acc: 0.2949\n",
++      "Epoch 62/1000\n",
++      "7471/7471 [==============================] - 3s 346us/step - loss: 458.7547 - acc: 0.3065 - val_loss: 1111.7424 - val_acc: 0.2949\n",
++      "Epoch 63/1000\n",
++      "7471/7471 [==============================] - 3s 358us/step - loss: 600.1439 - acc: 0.3054 - val_loss: 1522.6642 - val_acc: 0.2949\n",
++      "Epoch 64/1000\n",
++      "7471/7471 [==============================] - 3s 361us/step - loss: 402.4343 - acc: 0.3065 - val_loss: 1076.5357 - val_acc: 0.2957\n",
++      "Epoch 65/1000\n",
++      "7471/7471 [==============================] - 3s 347us/step - loss: 793.5875 - acc: 0.3072 - val_loss: 2219.4299 - val_acc: 0.2934\n",
++      "Epoch 66/1000\n",
++      "7471/7471 [==============================] - 3s 355us/step - loss: 425.3672 - acc: 0.3052 - val_loss: 954.6594 - val_acc: 0.2972\n",
++      "Epoch 67/1000\n",
++      "7471/7471 [==============================] - 3s 406us/step - loss: 746.0222 - acc: 0.3073 - val_loss: 3559.1229 - val_acc: 0.2949\n",
++      "Epoch 68/1000\n",
++      "7471/7471 [==============================] - 3s 375us/step - loss: 939.9877 - acc: 0.3038 - val_loss: 792.4604 - val_acc: 0.2873\n",
++      "Epoch 69/1000\n",
++      "7471/7471 [==============================] - 3s 378us/step - loss: 2687.7479 - acc: 0.3028 - val_loss: 837.7619 - val_acc: 0.2934\n",
++      "Epoch 70/1000\n",
++      "7471/7471 [==============================] - 3s 384us/step - loss: 2603.5047 - acc: 0.3037 - val_loss: 797.3234 - val_acc: 0.2934\n",
++      "Epoch 71/1000\n",
++      "7471/7471 [==============================] - 3s 423us/step - loss: 2585.7874 - acc: 0.3036 - val_loss: 886.4333 - val_acc: 0.2934\n",
++      "Epoch 72/1000\n",
++      "7471/7471 [==============================] - 3s 360us/step - loss: 2485.9347 - acc: 0.3041 - val_loss: 934.4450 - val_acc: 0.2934\n",
++      "Epoch 73/1000\n",
++      "7471/7471 [==============================] - 3s 369us/step - loss: 2115.1471 - acc: 0.3038 - val_loss: 2330.4319 - val_acc: 0.2934\n",
++      "Epoch 74/1000\n",
++      "7471/7471 [==============================] - 3s 410us/step - loss: 1816.1110 - acc: 0.3040 - val_loss: 9593.4103 - val_acc: 0.2934\n",
++      "Epoch 75/1000\n",
++      "7471/7471 [==============================] - 3s 357us/step - loss: 646.9463 - acc: 0.3013 - val_loss: 1885.9804 - val_acc: 0.2911\n",
++      "Epoch 76/1000\n",
++      "7471/7471 [==============================] - 3s 351us/step - loss: 1011.7695 - acc: 0.3028 - val_loss: 8892.3787 - val_acc: 0.2964\n",
++      "Epoch 77/1000\n",
++      "7471/7471 [==============================] - 3s 342us/step - loss: 820.4735 - acc: 0.3101 - val_loss: 1143.3799 - val_acc: 0.3010\n",
++      "Epoch 78/1000\n",
++      "7471/7471 [==============================] - 3s 349us/step - loss: 1912.3907 - acc: 0.3088 - val_loss: 4549.8099 - val_acc: 0.2934\n",
++      "Epoch 79/1000\n",
++      "7471/7471 [==============================] - 3s 351us/step - loss: 725.1423 - acc: 0.3036 - val_loss: 3253.6411 - val_acc: 0.2934\n",
++      "Epoch 80/1000\n",
++      "7471/7471 [==============================] - 3s 385us/step - loss: 676.5234 - acc: 0.3038 - val_loss: 4085.6626 - val_acc: 0.2934\n",
++      "Epoch 81/1000\n",
++      "7471/7471 [==============================] - 3s 368us/step - loss: 674.8479 - acc: 0.3038 - val_loss: 6644.3914 - val_acc: 0.2934\n",
++      "Epoch 82/1000\n",
++      "7471/7471 [==============================] - 3s 347us/step - loss: 763.4359 - acc: 0.3034 - val_loss: 1553.3900 - val_acc: 0.2957\n",
++      "Epoch 83/1000\n",
++      "7471/7471 [==============================] - 3s 349us/step - loss: 1655.3422 - acc: 0.3058 - val_loss: 2315.4358 - val_acc: 0.2934\n",
++      "Epoch 84/1000\n",
++      "7471/7471 [==============================] - 3s 336us/step - loss: 818.6257 - acc: 0.3038 - val_loss: 4502.0390 - val_acc: 0.2934\n",
++      "Epoch 85/1000\n",
++      "7471/7471 [==============================] - 3s 347us/step - loss: 492.9247 - acc: 0.3026 - val_loss: 2715.6511 - val_acc: 0.2934\n",
++      "Epoch 86/1000\n",
++      "7471/7471 [==============================] - 3s 347us/step - loss: 680.9301 - acc: 0.3034 - val_loss: 2655.6083 - val_acc: 0.2926\n",
++      "Epoch 87/1000\n",
++      "7471/7471 [==============================] - 3s 348us/step - loss: 490.0759 - acc: 0.3028 - val_loss: 4855.0280 - val_acc: 0.2934\n",
++      "Epoch 88/1000\n",
++      "7471/7471 [==============================] - 3s 361us/step - loss: 468.7373 - acc: 0.3028 - val_loss: 1127.8382 - val_acc: 0.2934\n",
++      "Epoch 89/1000\n",
++      "7471/7471 [==============================] - 3s 387us/step - loss: 978.6117 - acc: 0.3046 - val_loss: 8094.7970 - val_acc: 0.2957\n",
++      "Epoch 90/1000\n",
++      "7471/7471 [==============================] - 3s 381us/step - loss: 584.2301 - acc: 0.3041 - val_loss: 1109.1743 - val_acc: 0.2934\n",
++      "Epoch 91/1000\n",
++      "7471/7471 [==============================] - 3s 397us/step - loss: 2562.8859 - acc: 0.3034 - val_loss: 2012.2457 - val_acc: 0.2942\n",
++      "Epoch 92/1000\n",
++      "7471/7471 [==============================] - 3s 361us/step - loss: 1090.0297 - acc: 0.3030 - val_loss: 3447.3071 - val_acc: 0.2934\n",
++      "Epoch 93/1000\n",
++      "7471/7471 [==============================] - 3s 367us/step - loss: 529.2923 - acc: 0.3038 - val_loss: 12019.1313 - val_acc: 0.2934\n",
++      "Epoch 94/1000\n",
++      "7471/7471 [==============================] - 3s 354us/step - loss: 790.8879 - acc: 0.2986 - val_loss: 1110.2384 - val_acc: 0.2896\n",
++      "Epoch 95/1000\n",
++      "7471/7471 [==============================] - 3s 344us/step - loss: 1503.2619 - acc: 0.3033 - val_loss: 1163.7508 - val_acc: 0.2934\n",
++      "Epoch 96/1000\n",
++      "7471/7471 [==============================] - 3s 344us/step - loss: 1004.2230 - acc: 0.3046 - val_loss: 6671.7753 - val_acc: 0.2934\n",
++      "Epoch 97/1000\n",
++      "7471/7471 [==============================] - 3s 356us/step - loss: 512.6550 - acc: 0.3040 - val_loss: 6086.3962 - val_acc: 0.2934\n",
++      "Epoch 98/1000\n",
++      "7471/7471 [==============================] - 3s 351us/step - loss: 498.4225 - acc: 0.3042 - val_loss: 1758.5786 - val_acc: 0.2934\n",
++      "Epoch 99/1000\n",
++      "7471/7471 [==============================] - 3s 349us/step - loss: 1143.3704 - acc: 0.3042 - val_loss: 3399.7202 - val_acc: 0.2934\n",
++      "Epoch 100/1000\n",
++      "7471/7471 [==============================] - 3s 341us/step - loss: 657.1718 - acc: 0.3044 - val_loss: 1328.3854 - val_acc: 0.2926\n",
++      "Epoch 101/1000\n",
++      "7471/7471 [==============================] - 3s 347us/step - loss: 1194.7878 - acc: 0.3034 - val_loss: 1805.2654 - val_acc: 0.2934\n",
++      "Epoch 102/1000\n",
++      "7471/7471 [==============================] - 3s 346us/step - loss: 457.2706 - acc: 0.3042 - val_loss: 1811.4359 - val_acc: 0.2934\n",
++      "Epoch 103/1000\n",
++      "7471/7471 [==============================] - 3s 350us/step - loss: 577.4489 - acc: 0.3034 - val_loss: 1674.2237 - val_acc: 0.2934\n",
++      "Epoch 104/1000\n",
++      "7471/7471 [==============================] - 3s 353us/step - loss: 933.1223 - acc: 0.3006 - val_loss: 1036.1534 - val_acc: 0.2934\n",
++      "Epoch 105/1000\n",
++      "7471/7471 [==============================] - 3s 363us/step - loss: 2597.8033 - acc: 0.3024 - val_loss: 1706.5375 - val_acc: 0.2942\n",
++      "Epoch 106/1000\n",
++      "7471/7471 [==============================] - 3s 398us/step - loss: 1337.3503 - acc: 0.3041 - val_loss: 2744.6826 - val_acc: 0.2926\n",
++      "Epoch 107/1000\n",
++      "7471/7471 [==============================] - 3s 361us/step - loss: 402.4904 - acc: 0.3037 - val_loss: 1827.2613 - val_acc: 0.2934\n",
++      "Epoch 108/1000\n",
++      "7471/7471 [==============================] - 3s 365us/step - loss: 993.1962 - acc: 0.3034 - val_loss: 6550.9635 - val_acc: 0.2934\n",
++      "Epoch 109/1000\n",
++      "7471/7471 [==============================] - 3s 392us/step - loss: 1161.2007 - acc: 0.3038 - val_loss: 3855.5314 - val_acc: 0.2934\n",
++      "Epoch 110/1000\n",
++      "7471/7471 [==============================] - 3s 392us/step - loss: 802.9359 - acc: 0.3032 - val_loss: 17410.7512 - val_acc: 0.2934\n",
++      "Epoch 111/1000\n",
++      "7471/7471 [==============================] - 3s 378us/step - loss: 7076.6217 - acc: 0.3024 - val_loss: 784.2372 - val_acc: 0.2926\n",
++      "Epoch 112/1000\n",
++      "7471/7471 [==============================] - 3s 378us/step - loss: 2315.2360 - acc: 0.3040 - val_loss: 1951.7439 - val_acc: 0.2934\n",
++      "Epoch 113/1000\n",
++      "7471/7471 [==============================] - 3s 389us/step - loss: 1286.7643 - acc: 0.3037 - val_loss: 1880.0814 - val_acc: 0.2934\n"
++     ]
++    },
++    {
++     "name": "stdout",
++     "output_type": "stream",
++     "text": [
++      "Epoch 114/1000\n",
++      "7471/7471 [==============================] - 3s 360us/step - loss: 639.8876 - acc: 0.3037 - val_loss: 1550.8072 - val_acc: 0.2934\n",
++      "Epoch 115/1000\n",
++      "7471/7471 [==============================] - 3s 358us/step - loss: 502.6304 - acc: 0.3038 - val_loss: 5814.9205 - val_acc: 0.2934\n",
++      "Epoch 116/1000\n",
++      "7471/7471 [==============================] - 3s 354us/step - loss: 1069.0159 - acc: 0.3040 - val_loss: 913.0803 - val_acc: 0.2934\n",
++      "Epoch 117/1000\n",
++      "7471/7471 [==============================] - 3s 366us/step - loss: 1529.4015 - acc: 0.3038 - val_loss: 1141.2882 - val_acc: 0.2926\n",
++      "Epoch 118/1000\n",
++      "7471/7471 [==============================] - 3s 350us/step - loss: 746.9917 - acc: 0.3040 - val_loss: 1634.0626 - val_acc: 0.2934\n",
++      "Epoch 119/1000\n",
++      "7471/7471 [==============================] - 3s 352us/step - loss: 488.0677 - acc: 0.3040 - val_loss: 1942.6376 - val_acc: 0.2934\n",
++      "Epoch 120/1000\n",
++      "7471/7471 [==============================] - 3s 382us/step - loss: 442.7686 - acc: 0.3038 - val_loss: 814.7632 - val_acc: 0.2934\n",
++      "Epoch 121/1000\n",
++      "7040/7471 [===========================>..] - ETA: 0s - loss: 1276.6261 - acc: 0.3054"
++     ]
++    },
++    {
++     "ename": "KeyboardInterrupt",
++     "evalue": "",
++     "output_type": "error",
++     "traceback": [
++      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
++      "\u001b[0;31mKeyboardInterrupt\u001b[0m                         Traceback (most recent call last)",
++      "\u001b[0;32m<ipython-input-14-9a4fc1854371>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      1\u001b[0m model.fit(input_x_train, input_y_train, \n\u001b[1;32m      2\u001b[0m           \u001b[0mepochs\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mconfig\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mepoch\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mvalidation_data\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minput_x_test\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0minput_y_test\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 3\u001b[0;31m           callbacks=[WandbCallback()])\n\u001b[0m",
++      "\u001b[0;32m/mnt/c/Users/Gilang R Ilhami/Desktop/personal_projects/blogpost/blogpost_env/lib/python3.6/site-packages/keras/engine/training.py\u001b[0m in \u001b[0;36mfit\u001b[0;34m(self, x, y, batch_size, epochs, verbose, callbacks, validation_split, validation_data, shuffle, class_weight, sample_weight, initial_epoch, steps_per_epoch, validation_steps, **kwargs)\u001b[0m\n\u001b[1;32m   1037\u001b[0m                                         \u001b[0minitial_epoch\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0minitial_epoch\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1038\u001b[0m                                         \u001b[0msteps_per_epoch\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0msteps_per_epoch\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 1039\u001b[0;31m                                         validation_steps=validation_steps)\n\u001b[0m\u001b[1;32m   1040\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1041\u001b[0m     def evaluate(self, x=None, y=None,\n",
++      "\u001b[0;32m/mnt/c/Users/Gilang R Ilhami/Desktop/personal_projects/blogpost/blogpost_env/lib/python3.6/site-packages/keras/engine/training_arrays.py\u001b[0m in \u001b[0;36mfit_loop\u001b[0;34m(model, f, ins, out_labels, batch_size, epochs, verbose, callbacks, val_f, val_ins, shuffle, callback_metrics, initial_epoch, steps_per_epoch, validation_steps)\u001b[0m\n\u001b[1;32m    197\u001b[0m                     \u001b[0mins_batch\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mi\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mins_batch\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mi\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mtoarray\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    198\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 199\u001b[0;31m                 \u001b[0mouts\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mf\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mins_batch\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    200\u001b[0m                 \u001b[0mouts\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mto_list\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mouts\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    201\u001b[0m                 \u001b[0;32mfor\u001b[0m \u001b[0ml\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mo\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mzip\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mout_labels\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mouts\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
++      "\u001b[0;32m/mnt/c/Users/Gilang R Ilhami/Desktop/personal_projects/blogpost/blogpost_env/lib/python3.6/site-packages/keras/backend/tensorflow_backend.py\u001b[0m in \u001b[0;36m__call__\u001b[0;34m(self, inputs)\u001b[0m\n\u001b[1;32m   2713\u001b[0m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_legacy_call\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minputs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2714\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 2715\u001b[0;31m             \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_call\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minputs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   2716\u001b[0m         \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2717\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0mpy_any\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mis_tensor\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mx\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0mx\u001b[0m \u001b[0;32min\u001b[0m \u001b[0minputs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
++      "\u001b[0;32m/mnt/c/Users/Gilang R Ilhami/Desktop/personal_projects/blogpost/blogpost_env/lib/python3.6/site-packages/keras/backend/tensorflow_backend.py\u001b[0m in \u001b[0;36m_call\u001b[0;34m(self, inputs)\u001b[0m\n\u001b[1;32m   2673\u001b[0m             \u001b[0mfetched\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_callable_fn\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0marray_vals\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mrun_metadata\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrun_metadata\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2674\u001b[0m         \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 2675\u001b[0;31m             \u001b[0mfetched\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_callable_fn\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0marray_vals\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   2676\u001b[0m         \u001b[0;32mreturn\u001b[0m \u001b[0mfetched\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0moutputs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2677\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n",
++      "\u001b[0;32m/mnt/c/Users/Gilang R Ilhami/Desktop/personal_projects/blogpost/blogpost_env/lib/python3.6/site-packages/tensorflow/python/client/session.py\u001b[0m in \u001b[0;36m__call__\u001b[0;34m(self, *args, **kwargs)\u001b[0m\n\u001b[1;32m   1456\u001b[0m         ret = tf_session.TF_SessionRunCallable(self._session._session,\n\u001b[1;32m   1457\u001b[0m                                                \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_handle\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 1458\u001b[0;31m                                                run_metadata_ptr)\n\u001b[0m\u001b[1;32m   1459\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mrun_metadata\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1460\u001b[0m           \u001b[0mproto_data\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mtf_session\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mTF_GetBuffer\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mrun_metadata_ptr\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
++      "\u001b[0;31mKeyboardInterrupt\u001b[0m: "
++     ]
++    }
++   ],
++   "source": [
++    "model.fit(input_x_train, input_y_train, \n",
++    "          epochs=config.epoch, validation_data=(input_x_test, input_y_test), \n",
++    "          callbacks=[WandbCallback()])"
++   ]
++  },
+   {
+    "cell_type": "code",
+    "execution_count": null,

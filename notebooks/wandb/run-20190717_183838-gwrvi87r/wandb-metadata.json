@@ -1,0 +1,26 @@
+{
+    "root": "/mnt/c/Users/Gilang R Ilhami/Desktop/personal_projects/blogpost/Predicting-Micronutrients-using-Neural-Networks-and-Random-Forest",
+    "program": "<python with no main file>",
+    "git": {
+        "remote": "https://github.com/grilhami/Predicting-Micronutrients-using-Neural-Networks-and-Random-Forest.git",
+        "commit": null
+    },
+    "email": "gigilangilhami@gmail.com",
+    "startedAt": "2019-07-17T18:44:40.995329",
+    "host": "DESKTOP-KQKEK0F",
+    "username": "flyingchickenai",
+    "os": "Linux-4.4.0-17763-Microsoft-x86_64-with-Ubuntu-18.04-bionic",
+    "python": "3.6.8",
+    "executable": "/mnt/c/Users/Gilang R Ilhami/Desktop/personal_projects/blogpost/blogpost_env/bin/python",
+    "cpu_count": 8,
+    "args": [
+        "-f",
+        "/home/flyingchickenai/.local/share/jupyter/runtime/kernel-5b60c549-10c0-4e5b-ba73-4334a2b9afbb.json"
+    ],
+    "state": "running",
+    "jobType": null,
+    "mode": "run",
+    "name": "neat-thunder-4",
+    "project": "Predicting-Micronutrients-using-Neural-Networks-and-Random-Forest-notebooks",
+    "heartbeatAt": "2019-07-17T18:44:46.609630"
+}

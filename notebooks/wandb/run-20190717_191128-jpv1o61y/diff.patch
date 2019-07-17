@@ -1,0 +1,165 @@
+diff --git a/notebooks/Part_3.ipynb b/notebooks/Part_3.ipynb
+index 03b7fa5..b6b41a9 100644
+--- a/notebooks/Part_3.ipynb
++++ b/notebooks/Part_3.ipynb
+@@ -2,7 +2,7 @@
+  "cells": [
+   {
+    "cell_type": "code",
+-   "execution_count": 2,
++   "execution_count": 1,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -22,7 +22,7 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 5,
++   "execution_count": 2,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -42,7 +42,7 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 6,
++   "execution_count": 3,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -53,7 +53,7 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 7,
++   "execution_count": 4,
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -69,6 +69,124 @@
+     "input_y_test = scl_y.transform(y_test)"
+    ]
+   },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "# Import Dependencies For Training In Keras"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": 5,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "from tensorflow.keras.models import Sequential\n",
++    "from tensorflow.keras.layers import Activation, Dense, BatchNormalization, Dropout\n",
++    "from tensorflow.keras.optimizers import Adam\n",
++    "from tensorflow.keras.losses import mean_squared_error"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "# Set Up Wandb To Monitor Training"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "import wandb\n",
++    "from wandb.keras import WandbCallback\n",
++    "\n",
++    "wandb.init()\n",
++    "config = wandb.config"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Set up paramaters for training\n",
++    "\n",
++    "config.batch_size = 128\n",
++    "config.epochs = 1000\n",
++    "config.learning_rate = 0.001\n",
++    "config.dropout = 0.8"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "# Building the model"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "model = Sequential()\n",
++    "# model.add(Dense(input_x_train.shape[1]))\n",
++    "# model.add(Dense(1024))\n",
++    "# model.add(Activation('relu'))\n",
++    "# model.add(Dropout(config.dropout))\n",
++    "# model.add(Dense(512))\n",
++    "# model.add(Activation('relu'))\n",
++    "# model.add(Dropout(config.dropout))\n",
++    "model.add(Dense(128))\n",
++    "model.add(Activation('relu'))\n",
++    "model.add(Dropout(config.dropout))\n",
++    "model.add(Dense(64))\n",
++    "model.add(Activation('relu'))\n",
++    "model.add(Dropout(config.dropout))\n",
++    "model.add(Dense(32))\n",
++    "model.add(Activation('relu'))\n",
++    "model.add(Dropout(config.dropout))\n",
++    "model.add(Dense(6))"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "metadata": {},
++   "source": [
++    "# Training the Model"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "# Set the optimization method and cirterion\n",
++    "\n",
++    "adam = Adam(lr=config.learning_rate)\n",
++    "model.compile(loss=mean_squared_error, optimizer=adam, metrics=['accuracy'])"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "metadata": {
++    "scrolled": true
++   },
++   "outputs": [],
++   "source": [
++    "model.fit(input_x_train, input_y_train, \n",
++    "          epochs=config.epochs, validation_data=(input_x_test, input_y_test), \n",
++    "          callbacks=[WandbCallback()])"
++   ]
++  },
+   {
+    "cell_type": "code",
+    "execution_count": null,
